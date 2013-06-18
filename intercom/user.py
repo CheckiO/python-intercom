@@ -49,7 +49,7 @@ class User(UserId):
 
     attributes = (
         'user_id', 'email', 'name', 'created_at', 'custom_data',
-        'last_seen_ip', 'last_seen_user_agent')
+        'last_seen_ip', 'last_seen_user_agent', 'unsubscribed_from_emails')
 
     @classmethod
     def find(cls, user_id=None, email=None):
@@ -101,7 +101,8 @@ class User(UserId):
     @classmethod
     def create(
             cls, user_id=None, email=None, name=None, created_at=None,
-            custom_data=None, last_seen_ip=None, last_seen_user_agent=None):
+            custom_data=None, last_seen_ip=None, last_seen_user_agent=None,
+            unsubscribed_from_emails=None):
         """ Create or update a user.
 
         >>> user = User.create(email="somebody@example.com")
@@ -112,7 +113,8 @@ class User(UserId):
         resp = Intercom.create_user(
             user_id=user_id, email=email, name=name, created_at=created_at,
             custom_data=custom_data, last_seen_ip=last_seen_ip,
-            last_seen_user_agent=last_seen_user_agent)
+            last_seen_user_agent=last_seen_user_agent,
+            unsubscribed_from_emails=unsubscribed_from_emails)
         return cls(resp)
 
     @classmethod
@@ -161,6 +163,16 @@ class User(UserId):
                 attrs[key] = value
         resp = Intercom.update_user(**attrs)
         self.update(resp)
+
+    @property
+    def unsubscribed_from_emails(self):
+        """ Returns the unsubscribed_from_emails flag"""
+        return dict.get(self, 'unsubscribed_from_emails', True)
+
+    @unsubscribed_from_emails.setter
+    def unsubscribed_from_emails(self, unsubscribed_from_emails):
+        """ Sets the unsubscribed_from_emails flag. """
+        self['unsubscribed_from_emails'] = unsubscribed_from_emails
 
     @property
     def name(self):
